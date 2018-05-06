@@ -1,0 +1,3107 @@
+Iimport java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.util.Random;
+import java.util.Scanner;
+
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.*;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
+
+
+public class Game extends Application {
+	
+	private int[][] exits = {
+			 
+			     { -1, -1, -1, 1},   	//0
+			     { -1, -1, 0, 2  }, 	//1
+			     { -1, -1, 1, 3  }, 	//2
+			     { -1, -1, 2, 4  }, 	//3
+			     { -1, 5, 3, -1  }, 	//4
+			     { 4, 6, 18, -1  }, 	//5
+			     { 5, 7, 19, -1  }, 	//6
+			     { 6, 8, 20, -1  }, 	//7
+			     { 7, -1, 9, -1  }, 	//8
+			     { 20, -1, 10, 8 }, 	//9
+			     { 21, -1, 11, 9 }, 	//10
+			     { 22, -1, 12, 10}, 	//11
+			     { 13, -1, -1, 11}, 	//12
+			     { 14, 12, -1, 22}, 	//13
+			     { 15, 13, -1, 23}, 	//14
+			     { -1, 14, -1, 16}, 	//15
+			     { -1, 23, 15, 17}, 	//16
+			     { -1, 24, 16, 18}, 	//17
+			     { -1, 19, 17, 5 }, 	//18	
+			     { 18, 20, 24, 6 }, 	//19
+			     { 19, 9, 21, 7  }, 	//20
+			     { 24, 10, 22, 20}, 	//21
+			     { 23, 11, 13, 21}, 	//22
+			     { 16, 22, 14, 24},		//23
+			     { 17, 21, 23, 19}		//24
+			    };
+	private String[] directions = {
+			"north", 
+			"south", 
+			"west", 
+			"east",
+			};
+	
+    private static final double W = 1000, H = 808;
+    private Node  hero;
+    private Scene scene;
+    
+    private StringProperty textRecu = new SimpleStringProperty();
+    private String Direction;
+    private String PName;
+    
+    private TextArea tacombatlog = new TextArea();
+    private TextField Name = new TextField();
+    
+    private ImageView MainMenu = new ImageView("MainMenu.png");
+    private ImageView level1 = new ImageView("Level1.png");
+    private ImageView EndLevel = new ImageView("EndLevel.png");    
+    private ImageView Monster1m = new ImageView("Monster1m.png");
+    private ImageView monsterdeath = new ImageView("MonsterDeath.png");   
+    private ImageView Gold = new ImageView("gold.png");
+    private ImageView Hero1 = new ImageView("HeroM1.png");
+    private ImageView HeroF1 = new ImageView("HeroF1.png");
+    private ImageView Keys = new ImageView("key.png");
+    private ImageView Chest1 = new ImageView("Chest1.png");
+    private ImageView ChestB = new ImageView("ChestB.png");
+    private ImageView potion = new ImageView("potion.png");
+    private ImageView MMenu = new ImageView("MMenu.png");
+    private ImageView BMenu = new ImageView("BMenu.png");
+    private ImageView FMenu = new ImageView("FMenu.png");
+    private ImageView  k =  new ImageView("HeroM.png"); 
+    private ImageView Monster1 = new ImageView("Monster1.png");
+    private ImageView GoldSack = new ImageView("GoldSack.png");
+    private ImageView Monster2 = new ImageView("Monster2.png");
+    private ImageView GoldSack2 = new ImageView("GoldSack2.png");
+    private ImageView Monster3 = new ImageView("Monster3.png");
+    private ImageView GoldSack3 = new ImageView("GoldSack3.png");
+    private ImageView Monster4 = new ImageView("Monster4.png");
+    private ImageView GoldSack4 = new ImageView("GoldSack4.png");
+    private ImageView Monster5 = new ImageView("Monster5.png");
+    private ImageView GoldSack5 = new ImageView("GoldSack5.png");
+    private ImageView Monster6 = new ImageView("Monster6.png");
+    private ImageView GoldSack6 = new ImageView("GoldSack6.png");
+    private ImageView Monster7 = new ImageView("Monster7.png");
+    private ImageView GoldSack7 = new ImageView("GoldSack7.png");
+    private ImageView Monster8 = new ImageView("Monster8.png");
+    private ImageView GoldSack8 = new ImageView("GoldSack8.png");
+    private ImageView Boss1 = new ImageView("Boss1.png");
+    private Image sword = new Image("sword.png");
+   
+    private int currentroom = 0;
+    private int nextroom = 0;
+    private int charhealth = 10;
+    private int charhealth1 = 0;
+    private int damgtaken = 0;
+    private int endlvl = 0;
+    private int monsterhealth = 10;
+    Random random = new Random();
+    private int M1SpawnLow = 1;
+    private int M1SpawnHigh = 4;
+    private int M1Spawn = random.nextInt(M1SpawnHigh - M1SpawnLow) + M1SpawnLow;
+    private int M2Spawn;
+    private int M3Spawn;
+    private int M4Spawn;
+    private int M5Spawn;
+    private int M6Spawn;
+    private int M7Spawn;
+    private int M8Spawn;
+    private int Boss1Spawn;   
+    private int despawnM1 = 0;
+    private int despawnM2 = 0;
+    private int despawnM3 = 0;
+    private int despawnM4 = 0;
+    private int despawnM5 = 0;
+    private int despawnM6 = 0;
+    private int despawnM7 = 0;
+    private int despawnM8 = 0;
+    private int despawnB1 = 0;
+    private int monsterkills = 0;
+    private int monsterloss = 0;    
+    private int chest1 = 4;  
+    private int score = 0;
+    private int score1 = 0;
+    private int highscore;
+    private int key = 0;   
+    private int Potion = 0;
+    private int gold = 0;
+    private int goldc = 0;    
+    private int damage = 0;
+    private int damage1 = 0;
+    private int sackloot;
+    private int MF = 0;
+    private int chest1loot;    
+    private int foo;
+   
+    private Label CharHealth =  new Label (charhealth + "/" + charhealth);
+    private Label M1Label = new Label (monsterhealth + "/" + monsterhealth);
+    private Label GLabel = new Label ("" + gold);
+    private Label Score = new Label ("Score: " + score);
+    private Label HighScore = new Label ("HighScore: " + highscore);
+    private Label Key = new Label ("" + key);
+    private Label potion1 = new Label ("" + Potion);
+    private Label name =  new Label();
+    private Label Main =  new Label("Enter Initials Then Choose A Warrior");
+    private Label lblmonsterkills =  new Label(monsterkills + "/" + "8");
+    private Label Endlvl =  new Label();
+    
+    private Button btnstart = new Button("New Game");
+    private Button btnNextLvl = new Button("Next Level");
+
+    @Override
+    public void start(final Stage stage)  {
+    	
+    	try (BufferedReader br = new BufferedReader(new FileReader("highscore1.txt")))
+		{
+
+			String sCurrentLine;
+
+			while ((sCurrentLine = br.readLine()) != null) {				
+				highscore = score;
+				//foo = Integer.parseInt(sCurrentLine);
+				PName = Name.getText();
+				HighScore.setText("HighScore: " + sCurrentLine);				
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	 tacombatlog.setDisable(true);
+    	
+    	btnstart.setOnAction(event -> {
+    		try {
+				HScore();	
+				
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+    	      stage.close();
+    	      Platform.runLater( () -> new Game().start( new Stage() ) );    	       	
+    });
+
+        MMenu.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+ 		     @Override
+ 		     public void handle(MouseEvent event) {
+ 		    PName = Name.getText();
+ 		    
+         if (PName.length() > 3 ) { 
+         	  
+ 			PName = PName.substring(0, 3);
+ 			//System.out.println(PName);
+ 			name.setText(PName);
+ 		}
+         else if (PName.length() <= 0){
+        	
+         		PName = "Guy";
+         		name.setText(PName);
+         	
+         }
+         
+         name.setText(PName);
+         Hero1.setVisible(true);
+         MF += 1;
+         playGame();
+ 			     }
+ 		});
+        FMenu.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+ 		     @Override
+ 		     public void handle(MouseEvent event) {
+ 		    PName = Name.getText();
+ 		    
+         if (PName.length() > 3 ) { 
+         	  
+ 			PName = PName.substring(0, 3);
+ 			//System.out.println(PName);
+ 			name.setText(PName);
+ 		}
+         else if (PName.length() <= 0){
+         	
+      		PName = "Sky";
+      		name.setText(PName);
+      	
+      }
+         
+         name.setText(PName);
+         HeroF1.setVisible(true);
+         MF += 2;
+         playGame();
+ 			     }
+ 		});
+         
+        hero = k;
+        
+        Group dungeon = new Group(MainMenu,level1,EndLevel,hero,btnstart,btnNextLvl,M1Label, tacombatlog,Monster1,Monster2,Monster3,Monster4,Monster5,
+        						  Monster6,Monster7,Monster8,GoldSack,GoldSack2,GoldSack3,GoldSack4,GoldSack5,GoldSack6,GoldSack7,GoldSack8,Gold,
+        						  Hero1,HeroF1,Monster1m,GLabel, Score, Keys, Key, Chest1,potion,potion1, HighScore,CharHealth,Name,name,MMenu,FMenu, 
+        						  Main,monsterdeath, lblmonsterkills,Boss1,BMenu,ChestB,Endlvl);
+        
+        btnstart.setVisible(false);
+        btnNextLvl.setVisible(false);
+        level1.setVisible(false);
+        
+        Boss1.setVisible(false);
+        BMenu.setVisible(false);
+        ChestB.setVisible(false);
+        EndLevel.setVisible(false);
+       
+        hero.setVisible(false);
+        tacombatlog.setVisible(false);     
+        MainMenu.setX(4);
+        EndLevel.setX(3d);
+
+        btnstart.setLayoutX(825);
+        btnstart.setLayoutY(775);
+        
+        btnNextLvl.setLayoutX(915);
+        btnNextLvl.setLayoutY(775);
+        
+        Score.setVisible(false);
+        Score.setLayoutX(865);
+        Score.setLayoutY(400);
+        Score.setFont(Font.font("Matura MT Script Capitals", 14));
+        Score.setTextFill(Color.web("#0E6B00"));
+        
+        HighScore.setVisible(true);
+        HighScore.setLayoutX(825);
+        HighScore.setLayoutY(735);
+        HighScore.setFont(Font.font("Matura MT Script Capitals", 14));
+        HighScore.setTextFill(Color.web("#0E6B00"));
+        
+        
+        GLabel.setVisible(false);
+        GLabel.setLayoutX(890);
+        GLabel.setLayoutY(185);
+        GLabel.setFont(Font.font("Matura MT Script Capitals", 26));
+        GLabel.setTextFill(Color.web("#0E6B00"));
+        Gold.setVisible(false);
+        Gold.setLayoutX(850);
+        Gold.setLayoutY(200);
+        
+        Key.setVisible(false);
+        Key.setLayoutX(890);
+        Key.setLayoutY(232);
+        Key.setFont(Font.font("Matura MT Script Capitals", 26));
+        Key.setTextFill(Color.web("#0E6B00"));
+        Keys.setVisible(false);
+        Keys.setLayoutX(850);
+        Keys.setLayoutY(250);
+      
+        potion.setVisible(false);
+        potion.setLayoutX(850);
+        potion.setLayoutY(300);
+        potion1.setVisible(false);
+        potion1.setLayoutX(890);
+        potion1.setLayoutY(282);
+        potion1.setFont(Font.font("Matura MT Script Capitals", 26));
+        potion1.setTextFill(Color.web("#0E6B00"));
+        
+        Monster1m.setVisible(false);
+        M1Label.setVisible(false);
+        //B1Label.setVisible(false);
+        
+        Monster1.setVisible(false);
+        GoldSack.setVisible(false);
+        Monster2.setVisible(false);          
+        GoldSack2.setVisible(false);
+        Monster3.setVisible(false);      
+        GoldSack3.setVisible(false);
+        Monster4.setVisible(false);      
+        GoldSack4.setVisible(false);
+        Monster5.setVisible(false);      
+        GoldSack5.setVisible(false);
+        Monster6.setVisible(false);      
+        GoldSack6.setVisible(false);
+        Monster7.setVisible(false);      
+        GoldSack7.setVisible(false);
+        Monster8.setVisible(false);      
+        GoldSack8.setVisible(false);
+        
+        Hero1.setVisible(false);        
+        Hero1.setLayoutX(825);
+        Hero1.setLayoutY(5);
+        HeroF1.setVisible(false);
+        HeroF1.setLayoutX(825);
+        HeroF1.setLayoutY(5);
+        BMenu.setVisible(false);
+        BMenu.setLayoutX(825);
+        BMenu.setLayoutY(100);
+        CharHealth.setVisible(false);
+        CharHealth.setLayoutX(885);
+        CharHealth.setLayoutY(8);
+        CharHealth.setFont(Font.font("Matura MT Script Capitals", 24));
+       
+        
+        Chest1.setVisible(false);
+        Chest1.setLayoutX(760);
+        Chest1.setLayoutY(125);
+        
+        name.setVisible(true);
+        name.setLayoutX(875);
+        name.setLayoutY(35);
+        name.setFont(Font.font("Matura MT Script Capitals", 26));
+        name.setTextFill(Color.web("#FF0E0E"));
+        
+        tacombatlog.setFont(Font.font("Gungsuh", 10));
+        tacombatlog.setStyle("-fx-text-inner-color: red;");
+        tacombatlog.textProperty().bind(textRecu);
+        tacombatlog.setPrefSize(165, 275);
+        tacombatlog.setLayoutX(820);
+        tacombatlog.setLayoutY(450);
+        
+        MMenu.setVisible(true);
+        MMenu.setLayoutX(560);
+        MMenu.setLayoutY(500);
+        
+        FMenu.setVisible(true);
+        FMenu.setLayoutX(280);
+        FMenu.setLayoutY(500);
+        
+        Name.setVisible(true);
+        Name.setLayoutX(410);
+        Name.setLayoutY(500);
+        
+        Main.setVisible(true);
+        Main.setLayoutX(235);
+        Main.setLayoutY(425);
+        Main.setFont(Font.font("Matura MT Script Capitals", 28));
+        Main.setTextFill(Color.web("FF0000"));
+        
+        monsterdeath.setVisible(false);
+        monsterdeath.setLayoutX(850);
+        monsterdeath.setLayoutY(350);
+        
+        lblmonsterkills.setVisible(false);
+        lblmonsterkills.setLayoutX(890);
+        lblmonsterkills.setLayoutY(335);
+        lblmonsterkills.setFont(Font.font("Matura MT Script Capitals", 26));
+        lblmonsterkills.setTextFill(Color.web("#0E6B00"));
+        
+        textRecu.addListener(new ChangeListener<Object>()
+ {
+      public void changed(ObservableValue<?> observable, Object oldValue, Object newValue)
+     {
+        tacombatlog.selectPositionCaret(tacombatlog.getLength());
+        tacombatlog.deselect();
+        tacombatlog.setDisable(true);
+    }
+     
+ });
+
+        moveHeroTo(W / 30, H / 10);
+        scene = new Scene(dungeon, W, H);
+        scene.setCursor(Cursor.HAND);
+        stage.setScene(scene);
+        stage.show();
+        stage.setResizable(false);
+        
+        GoldSack.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+			     @Override
+			     public void handle(MouseEvent event) {	
+			    	 
+			    	 Random randomGen = new Random();
+   			        
+   			        for (int counter =0; counter < 1; counter++){
+   			        	sackloot = randomGen.nextInt(7);
+   			        	
+   			        }
+			        
+			        	switch(sackloot){
+			        	
+			        	case 0:
+			        		goldc =  50;
+			        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");		
+			        		charhealth1 = 5;
+			        		score1 = 1000;			           			        		
+			        		key = key + 1;
+			        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+			        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+			        		GoldSack.setVisible(false);
+			        		break;
+			        	case 1:
+			        		goldc = 100;
+			        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");			        		
+			        		charhealth1 =  4;
+			        		score1 = 2000;
+			        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+			        		GoldSack.setVisible(false);
+			        		break;
+			        	case 2:
+			        		goldc = 150;
+			        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");			        		
+			        		charhealth1 = 5;
+			        		score1 = 1500;
+			        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+			        		GoldSack.setVisible(false);
+			        		break;
+			        	case 3:
+			        		goldc = 200;
+			        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");			        		
+			        		GoldSack.setVisible(false);
+			        		charhealth1 =  2;
+			        		score1 = 3000;
+			        		Potion = Potion + 1;
+			        		textRecu.setValue(textRecu.getValue() + "Picked Up  Potion" +"\n");
+			        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+			        		break;
+			        	case 4:
+			        		goldc = 150;
+			        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");			        		
+			        		GoldSack.setVisible(false);
+			        		charhealth1 = 4;
+			        		score1 = 1000;
+			        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+			        		break;
+			        	case 5:
+			        		goldc = 200;
+			        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");			        	
+			        		GoldSack.setVisible(false);
+			        		charhealth1 =  3;
+			        		score1 = 1500;
+			        		key = key + 1;
+			        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+			        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+			        		break;
+			        	case 6:
+			        		goldc = 100;
+			        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");			        		
+			        		GoldSack.setVisible(false);
+			        		charhealth1 =  5;
+			        		score1 = 1000;
+			        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+			        		break;
+			        		
+			        	}
+			        	charhealth += charhealth1;
+			        	CharHealth.setText(charhealth + "/" + charhealth);
+			        	gold = gold + goldc;
+			        	GLabel.setText("" + gold);
+			        	score = score1 + score;
+			        	Score.setText("Score: " + score );
+			        	Key.setText("" + key );
+			        	scene.setCursor(Cursor.CROSSHAIR);
+			        	potion1.setText("" + Potion);
+			        	
+			        	
+			        	
+			    	 
+			  } 
+			     
+		        });
+        GoldSack2.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+		     @Override
+		     public void handle(MouseEvent event) {	
+		    	 
+		    	 Random randomGenz = new Random();
+			        
+			        for (int counterz =0; counterz < 1; counterz++){
+			        	sackloot = randomGenz.nextInt(7);
+			        	
+			        }
+		        
+		        	switch(sackloot){
+		        	
+		        	case 0:
+		        		goldc = 50;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		GLabel.setText("" + gold);
+		        		charhealth1 = 5;
+		        		score1 = 1000;			           			        		
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack2.setVisible(false);
+		        		break;
+		        	case 1:
+		        		goldc =  100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		GLabel.setText("" + gold);
+		        		charhealth1 = 4;
+		        		score1 = 2000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack2.setVisible(false);
+		        		break;
+		        	case 2:
+		        		goldc = 150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ gold+ " Gold" +"\n");
+		        		GLabel.setText("" + gold);
+		        		charhealth1 = 5;
+		        		score1 = 1500;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack2.setVisible(false);
+		        		break;
+		        	case 3:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		GLabel.setText("" + gold);
+		        		GoldSack2.setVisible(false);
+		        		charhealth1 =  2;
+		        		score1 = 3000;
+		        		Potion = Potion + 1;
+		        		textRecu.setValue(textRecu.getValue() + "Picked Up Potion" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 4:
+		        		goldc = 150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		GLabel.setText("" + gold);
+		        		GoldSack2.setVisible(false);
+		        		charhealth1 = 4;
+		        		score1 = 1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 5:
+		        		goldc =200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		GLabel.setText("" + gold);
+		        		GoldSack2.setVisible(false);
+		        		charhealth1 = 3;
+		        		score1 = 1500;
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 6:
+		        		goldc =  100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		GLabel.setText("" + gold);
+		        		GoldSack2.setVisible(false);
+		        		charhealth1 =5;
+		        		score1 = 1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        		
+		        	}
+		        	charhealth = charhealth + charhealth1;
+		        	CharHealth.setText(charhealth + "/" + charhealth);
+		        	gold = gold + goldc;
+		        	GLabel.setText("" + gold);
+		        	score = score1 + score;
+		        	Score.setText("Score: " + score );
+		        	Key.setText("" + key );
+		        	scene.setCursor(Cursor.CROSSHAIR);
+		        	potion1.setText("" + Potion);
+		        	
+		        	
+		        	
+		    	 
+		  } 
+		     
+	        });
+        GoldSack3.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+		     @Override
+		     public void handle(MouseEvent event) {	
+		    	 
+		    	 Random randomGenz1 = new Random();
+			        
+			        for (int counterz1 =0; counterz1 < 1; counterz1++){
+			        	sackloot = randomGenz1.nextInt(7);
+			        	
+			        }
+		        
+		        	switch(sackloot){
+		        	
+		        	case 0:
+		        		goldc = 50;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1000;			           			        		
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() +  " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack3.setVisible(false);
+		        		break;
+		        	case 1:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 4;
+		        		score1 = 2000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack3.setVisible(false);
+		        		break;
+		        	case 2:
+		        		goldc = 150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1500;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack3.setVisible(false);
+		        		break;
+		        	case 3:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack3.setVisible(false);
+		        		charhealth1 =  2;
+		        		score1 = 3000;
+		        		Potion = Potion + 1;
+		        		textRecu.setValue(textRecu.getValue() + "Picked Up Potion" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 4:
+		        		goldc =  150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        	
+		        		GoldSack3.setVisible(false);
+		        		charhealth1 = 4;
+		        		score1 =1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 5:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack3.setVisible(false);
+		        		charhealth1 = 3;
+		        		score1 = 1500;
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 6:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack3.setVisible(false);
+		        		charhealth1 = 5;
+		        		score1 =  1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        		
+		        	}
+		        	charhealth = charhealth + charhealth1;
+		        	CharHealth.setText(charhealth + "/" + charhealth);
+		        	gold = gold + goldc;
+		        	GLabel.setText("" + gold);
+		        	score = score1 + score;
+		        	Score.setText("Score: " + score );
+		        	Key.setText("" + key );
+		        	scene.setCursor(Cursor.CROSSHAIR);
+		        	potion1.setText("" + Potion);
+		        	
+		        	
+		        	
+		    	 
+		  } 
+		     
+	        });
+        GoldSack4.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+		     @Override
+		     public void handle(MouseEvent event) {	
+		    	 
+		    	 Random randomGenz12 = new Random();
+			        
+			        for (int counterz21 =0; counterz21 < 1; counterz21++){
+			        	sackloot = randomGenz12.nextInt(7);
+			        	//System.out.println(sackloot);
+			        }
+		        
+		        	switch(sackloot){
+		        	
+		        	case 0:
+		        		goldc = 50;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1000;			           			        		
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack4.setVisible(false);
+		        		break;
+		        	case 1:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 4;
+		        		score1 = 2000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack4.setVisible(false);
+		        		break;
+		        	case 2:
+		        		goldc = 150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1500;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack4.setVisible(false);
+		        		break;
+		        	case 3:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack4.setVisible(false);
+		        		charhealth1 =  2;
+		        		score1 = 3000;
+		        		Potion = Potion + 1;
+		        		textRecu.setValue(textRecu.getValue() + "Picked Up Potion" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 4:
+		        		goldc =  150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        	
+		        		GoldSack4.setVisible(false);
+		        		charhealth1 = 4;
+		        		score1 =1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 5:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack4.setVisible(false);
+		        		charhealth1 = 3;
+		        		score1 = 1500;
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() +  " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 6:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack4.setVisible(false);
+		        		charhealth1 = 5;
+		        		score1 =  1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        		
+		        	}
+		        	charhealth = charhealth + charhealth1;
+		        	CharHealth.setText(charhealth + "/" + charhealth);
+		        	gold = gold + goldc;
+		        	GLabel.setText("" + gold);
+		        	score = score1 + score;
+		        	Score.setText("Score: " + score );
+		        	Key.setText("" + key );
+		        	scene.setCursor(Cursor.CROSSHAIR);
+		        	potion1.setText("" + Potion);
+		        	
+		        	
+		        	
+		    	 
+		  } 
+		     
+	        });
+        GoldSack5.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+		     @Override
+		     public void handle(MouseEvent event) {	
+		    	 
+		    	 Random randomGenz123 = new Random();
+			        
+			        for (int counterz1 =0; counterz1 < 1; counterz1++){
+			        	sackloot = randomGenz123.nextInt(7);
+			        	//System.out.println(sackloot);
+			        }
+		        
+		        	switch(sackloot){
+		        	
+		        	case 0:
+		        		goldc = 50;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1000;			           			        		
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() +" Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack5.setVisible(false);
+		        		break;
+		        	case 1:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 4;
+		        		score1 = 2000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack5.setVisible(false);
+		        		break;
+		        	case 2:
+		        		goldc = 150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1500;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack5.setVisible(false);
+		        		break;
+		        	case 3:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack5.setVisible(false);
+		        		charhealth1 =  2;
+		        		score1 = 3000;
+		        		Potion = Potion + 1;
+		        		textRecu.setValue(textRecu.getValue() + "Picked Up Potion" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 4:
+		        		goldc =  150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        	
+		        		GoldSack5.setVisible(false);
+		        		charhealth1 = 4;
+		        		score1 =1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 5:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack5.setVisible(false);
+		        		charhealth1 = 3;
+		        		score1 = 1500;
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 6:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack5.setVisible(false);
+		        		charhealth1 = 5;
+		        		score1 =  1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        		
+		        	}
+		        	charhealth = charhealth + charhealth1;
+		        	CharHealth.setText(charhealth + "/" + charhealth);
+		        	gold = gold + goldc;
+		        	GLabel.setText("" + gold);
+		        	score = score1 + score;
+		        	Score.setText("Score: " + score );
+		        	Key.setText("" + key );
+		        	scene.setCursor(Cursor.CROSSHAIR);
+		        	potion1.setText("" + Potion);
+		        	
+		        	
+		        	
+		    	 
+		  } 
+		     
+	        });
+        GoldSack6.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+		     @Override
+		     public void handle(MouseEvent event) {	
+		    	 
+		    	 Random randomGenz123j = new Random();
+			        
+			        for (int counterz1j =0; counterz1j < 1; counterz1j++){
+			        	sackloot = randomGenz123j.nextInt(7);
+			        	//System.out.println(sackloot);
+			        }
+		        
+		        	switch(sackloot){
+		        	
+		        	case 0:
+		        		goldc = 50;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1000;			           			        		
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() +" Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack6.setVisible(false);
+		        		break;
+		        	case 1:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 4;
+		        		score1 = 2000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack6.setVisible(false);
+		        		break;
+		        	case 2:
+		        		goldc = 150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1500;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack6.setVisible(false);
+		        		break;
+		        	case 3:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack6.setVisible(false);
+		        		charhealth1 =  2;
+		        		score1 = 3000;
+		        		Potion = Potion + 1;
+		        		textRecu.setValue(textRecu.getValue() + "Picked Up Potion" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 4:
+		        		goldc =  150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        	
+		        		GoldSack6.setVisible(false);
+		        		charhealth1 = 4;
+		        		score1 =1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 5:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack6.setVisible(false);
+		        		charhealth1 = 3;
+		        		score1 = 1500;
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 6:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack6.setVisible(false);
+		        		charhealth1 = 5;
+		        		score1 =  1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        		
+		        	}
+		        	charhealth = charhealth + charhealth1;
+		        	CharHealth.setText(charhealth + "/" + charhealth);
+		        	gold = gold + goldc;
+		        	GLabel.setText("" + gold);
+		        	score = score1 + score;
+		        	Score.setText("Score: " + score );
+		        	Key.setText("" + key );
+		        	scene.setCursor(Cursor.CROSSHAIR);
+		        	potion1.setText("" + Potion);
+		        	
+		        	
+		        	
+		    	 
+		  } 
+		     
+	        });
+        GoldSack7.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+		     @Override
+		     public void handle(MouseEvent event) {	
+		    	 
+		    	 Random randomGenz123j7 = new Random();
+			        
+			        for (int counterz1j7 =0; counterz1j7 < 1; counterz1j7++){
+			        	sackloot = randomGenz123j7.nextInt(7);
+			        	//System.out.println(sackloot);
+			        }
+		        
+		        	switch(sackloot){
+		        	
+		        	case 0:
+		        		goldc = 50;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1000;			           			        		
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() +" Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack7.setVisible(false);
+		        		break;
+		        	case 1:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 4;
+		        		score1 = 2000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack7.setVisible(false);
+		        		break;
+		        	case 2:
+		        		goldc = 150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1500;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack7.setVisible(false);
+		        		break;
+		        	case 3:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack7.setVisible(false);
+		        		charhealth1 =  2;
+		        		score1 = 3000;
+		        		Potion = Potion + 1;
+		        		textRecu.setValue(textRecu.getValue() + "Picked Up Potion" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 4:
+		        		goldc =  150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        	
+		        		GoldSack7.setVisible(false);
+		        		charhealth1 = 4;
+		        		score1 =1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 5:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack7.setVisible(false);
+		        		charhealth1 = 3;
+		        		score1 = 1500;
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() +" Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 6:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack7.setVisible(false);
+		        		charhealth1 = 5;
+		        		score1 =  1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        		
+		        	}
+		        	charhealth = charhealth + charhealth1;
+		        	CharHealth.setText(charhealth + "/" + charhealth);
+		        	gold = gold + goldc;
+		        	GLabel.setText("" + gold);
+		        	score = score1 + score;
+		        	Score.setText("Score: " + score );
+		        	Key.setText("" + key );
+		        	scene.setCursor(Cursor.CROSSHAIR);
+		        	potion1.setText("" + Potion);
+		  } 
+		     
+	        });
+        GoldSack8.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+		     @Override
+		     public void handle(MouseEvent event) {	
+		    	 
+		    	 Random randomGenz123j8 = new Random();
+			        
+			        for (int counterz1j8 =0; counterz1j8 < 1; counterz1j8++){
+			        	sackloot = randomGenz123j8.nextInt(7);
+			        	
+			        }
+		        
+		        	switch(sackloot){
+		        	
+		        	case 0:
+		        		goldc = 50;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1000;			           			        		
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack8.setVisible(false);
+		        		break;
+		        	case 1:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        		
+		        		charhealth1 = 4;
+		        		score1 = 2000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack8.setVisible(false);
+		        		break;
+		        	case 2:
+		        		goldc = 150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		charhealth1 = 5;
+		        		score1 = 1500;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack8.setVisible(false);
+		        		break;
+		        	case 3:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack8.setVisible(false);
+		        		charhealth1 =  2;
+		        		score1 = 3000;
+		        		Potion = Potion + 1;
+		        		textRecu.setValue(textRecu.getValue() + "Picked Up Potion" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 4:
+		        		goldc =  150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        	
+		        		GoldSack8.setVisible(false);
+		        		charhealth1 = 4;
+		        		score1 =1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 5:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack8.setVisible(false);
+		        		charhealth1 = 3;
+		        		score1 = 1500;
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 6:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack8.setVisible(false);
+		        		charhealth1 = 5;
+		        		score1 =  1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        		
+		        	}
+		        	charhealth = charhealth + charhealth1;
+		        	CharHealth.setText(charhealth + "/" + charhealth);
+		        	gold = gold + goldc;
+		        	GLabel.setText("" + gold);
+		        	score = score1 + score;
+		        	Score.setText("Score: " + score );
+		        	Key.setText("" + key );
+		        	scene.setCursor(Cursor.CROSSHAIR);
+		        	potion1.setText("" + Potion);
+		  } 
+		     
+	        });        
+        
+        Chest1.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+		     @Override
+		     public void handle(MouseEvent event) {	
+		    	textRecu.setValue(textRecu.getValue() + "\n" + "Chest Opened");
+		    	 key = key - 1;
+		    	 
+		    	 Random randomGen = new Random();
+			        
+			        for (int counter =0; counter < 1; counter++){
+			        	chest1loot = randomGen.nextInt(7);
+			        	//System.out.println(damage);
+			        }
+		        
+		        	switch(chest1loot){
+		        	
+		        	case 0:
+		        		goldc = 50;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+		        				
+		        		score1 = 1000;			           			        		
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");	        		
+		        		GoldSack.setVisible(false);
+		        		break;
+		        	case 1:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");	        		
+		        		charhealth1 = 4;
+		        		score1 = 2000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		GoldSack.setVisible(false);
+		        		break;
+		        	case 2:
+		        		goldc = 150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		        		
+		        		score1 = 1500;		
+		        		GoldSack.setVisible(false);
+		        		break;
+		        	case 3:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack.setVisible(false);
+		        		Potion = Potion + 1;
+		        		textRecu.setValue(textRecu.getValue() + "Picked Up Potion" +"\n");
+		        		score1 = 3000;		        		
+		        		break;
+		        	case 4:
+		        		goldc =  150;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack.setVisible(false);
+		        		charhealth1 =  4;
+		        		score1 = 1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        	case 5:
+		        		goldc = 200;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack.setVisible(false);		        		
+		        		score1 = 1500;
+		        		key = key + 1;
+		        		textRecu.setValue(textRecu.getValue() +  key + " Key Found" +"\n");
+		        		
+		        		break;
+		        	case 6:
+		        		goldc = 100;
+		        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+		        		
+		        		GoldSack.setVisible(false);
+		        		charhealth1 = 4;
+		        		score1 = 1000;
+		        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+		        		break;
+		        		
+		        	}
+		        	charhealth = charhealth + charhealth1;
+		        	CharHealth.setText(charhealth + "/" + charhealth);
+		        	score = score1 + score;
+		        	Score.setText("Score: " + score );
+		        	Key.setText("" + key );
+		        	Chest1.setVisible(false);
+		        	potion1.setText("" + Potion);
+		        	gold = gold + goldc;
+		        	GLabel.setText("" + gold);
+		        	scene.setCursor(Cursor.CROSSHAIR);
+		     }
+		});
+    }
+
+    private void moveHeroBy(int dx, int dy) {
+    	
+        if (dx == 0 && dy == 0) return;
+
+        final double cx = hero.getBoundsInLocal().getWidth()  / 2;
+        final double cy = hero.getBoundsInLocal().getHeight() / 2;
+
+        double x = cx + hero.getLayoutX() + dx;
+        double y = cy + hero.getLayoutY() + dy;
+
+        moveHeroTo(x, y);
+    }
+
+    private void moveHeroTo(double x, double y) {
+        final double cx = hero.getBoundsInLocal().getWidth()  / 2;
+        final double cy = hero.getBoundsInLocal().getHeight() / 2;
+
+        if (x - cx >= 0 &&
+            x + cx <= W &&
+            y - cy >= 0 &&
+            y + cy <= H) {
+            hero.relocate(x - cx, y - cy);
+        }
+    }
+
+    public static void main(String[] args) { 
+    	Application.launch(args); 
+    	}
+
+    private void HScore() throws FileNotFoundException, IOException{
+    	
+	  try (BufferedReader br = new BufferedReader(new FileReader("highscore1.txt")))
+		{
+
+			String sCurrentLine;
+
+			while ((sCurrentLine = br.readLine()) != null) {
+				//System.out.println(sCurrentLine);
+				highscore = score;
+				foo = Integer.parseInt(sCurrentLine);
+				HighScore.setText(sCurrentLine);
+
+				if(foo <= highscore){
+					try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+			    			
+			                new FileOutputStream("highscore1.txt"), "utf-8"))) {
+			    			highscore = score;
+			    			writer.write(String.valueOf(highscore ));	//+" "+ PName		
+			  }
+					
+				}
+				
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+    	
+    }
+    
+    private void playGame(){
+    	
+    
+    	
+    	if (MF == 1){
+    		k.setImage(new Image ("HeroM.png"));
+    		Hero1.setVisible(true);
+    	}
+    	if (MF ==  2){
+    		k.setImage(new Image ("HeroF.png"));
+    		HeroF1.setVisible(true);
+    	}
+    	lblmonsterkills.setVisible(true);
+    	monsterdeath.setVisible(true);
+    	btnstart.setVisible(true);
+    	btnNextLvl.setVisible(true);
+    	btnNextLvl.setDisable(true);
+    	tacombatlog.setVisible(true);
+    	MainMenu.setVisible(false);
+    	Main.setVisible(false);
+    	level1.setVisible(true);
+    	EndLevel.setVisible(false);
+    	MMenu.setVisible(false);
+    	FMenu.setVisible(false);
+    	Name.setDisable(true);	
+    	Name.setVisible(false);
+    	name.setVisible(true);	
+    	hero.setVisible(true);
+    	textRecu.setValue("");
+    	potion1.setVisible(true);
+    	potion.setVisible(true);
+    	CharHealth.setVisible(true);
+    	Gold.setVisible(true);
+    	Key.setVisible(true);
+    	Keys.setVisible(true);
+    	GLabel.setVisible(true);
+    	Score.setVisible(true);
+    	scene.setCursor(Cursor.CROSSHAIR);
+    	
+    	
+   scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+   @Override
+   public void handle(KeyEvent event) {
+	        
+	   
+	    	 switch (event.getCode()) {
+	                
+	    	 case W:     
+	           Direction = "north";
+	           break;
+	         case S:  
+	           Direction = "south";
+	           break;
+	         case D:  
+	           Direction = "east";
+	           break;
+	         case A: 
+	           Direction = "west";
+	           break;
+	         case Q:
+	           Direction = "potion";
+	           break;
+	         default :
+	        	Direction = "Nope";
+	        	 break;
+	         }       
+	    	 
+	            for (int x2 = 0; x2 < 4; x2++) {
+	            	if (Direction.equals(directions[x2])) {
+	           			 nextroom = exits[currentroom][x2];
+	           			 
+	           		if(nextroom != -1){
+	           			 currentroom = nextroom;	
+	           			 int x = 0, y = 0;
+	           			 if(Direction == "north"){
+	           			 	y -= 162;
+	           			 	moveHeroBy(x, y);
+	           			 	}
+	           			 if(Direction == "south"){
+	           				y += 162;
+	           				moveHeroBy(x, y);
+	           				}
+	           			 if(Direction == "east"){
+	           				x += 162;
+	           				moveHeroBy(x, y);
+	           				}
+	           			 if(Direction == "west"){
+	           				x -= 162;
+	           				moveHeroBy(x, y);
+	           				}
+	           			 if(Direction == "Nope"){
+	           				x = x;
+	           				y = y;
+	           				moveHeroBy(x, y);
+	           					
+	           				}
+	           			
+	           		}
+	           		
+	           		 if (nextroom == -1) {
+	           			 		nextroom = currentroom;
+	           			 		textRecu.setValue(textRecu.getValue()+ "\n" + "**CAN'T GO THAT WAY**" + "\n");
+	           			 	}
+	           			 	
+	           			 }
+	            	
+	           			 
+	           		 }
+	            if (currentroom == M1Spawn && despawnM1 != 1 ||
+	            	currentroom == M2Spawn && despawnM2 != 1 ||
+	            	currentroom == M3Spawn && despawnM3 !=1  ||
+	            	currentroom == M4Spawn && despawnM4 !=1  ||
+	            	currentroom == M5Spawn && despawnM5 !=1  ||
+	            	currentroom == M6Spawn && despawnM6 !=1  ||
+	            	currentroom == M7Spawn && despawnM7 !=1  ||
+	            	currentroom == M8Spawn && despawnM8 !=1){        			
+          			           			
+          			 if(M1Spawn == 1 && despawnM1 != 1){  	        
+          			 	Monster1.setLayoutX(235);
+          			 	Monster1.setLayoutY(45);
+          			 	Monster1.setVisible(true);
+          			 	Monster8.setVisible(false);
+          			 	Monster7.setVisible(false);
+          			 	Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster4.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+          			 	GoldSack.setLayoutX(235);
+           			 	GoldSack.setLayoutY(60);
+           			 
+          			 }
+          			 
+          			 if(M1Spawn == 2 && despawnM1 != 1){  	        
+						Monster1.setLayoutX(390);
+			 			Monster1.setLayoutY(45);
+			 			Monster1.setVisible(true);
+			 			Monster8.setVisible(false);
+			 			Monster7.setVisible(false);
+			 			Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster4.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+			 			GoldSack.setLayoutX(390);
+         			 	GoldSack.setLayoutY(60);
+          			 }
+          			 if(M1Spawn == 3 && despawnM1 != 1){  	        
+		 				Monster1.setLayoutX(550);
+						Monster1.setLayoutY(45);
+			 			Monster1.setVisible(true);
+			 			Monster8.setVisible(false);
+			 			Monster7.setVisible(false);
+			 			Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster4.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+			 			GoldSack.setLayoutX(550);
+           			 	GoldSack.setLayoutY(60);
+          			 }
+          			 if(M2Spawn == 5 && despawnM2 != 1){  	        
+		 				Monster2.setLayoutX(715);
+		 				Monster2.setLayoutY(200);
+						Monster2.setVisible(true);
+						Monster8.setVisible(false);
+						Monster7.setVisible(false);
+						Monster1.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster4.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+			 			GoldSack2.setLayoutX(715);
+        		 		GoldSack2.setLayoutY(200);
+          			 }
+          			 if(M2Spawn == 6 && despawnM2 != 1){  	        
+			 			Monster2.setLayoutX(715);
+			 			Monster2.setLayoutY(375);
+		 				Monster2.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster1.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster4.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				GoldSack2.setLayoutX(715);
+        		 		GoldSack2.setLayoutY(375);
+          			 }
+          			 if(M2Spawn == 7 && despawnM2 != 1){  	        
+			 			Monster2.setLayoutX(715);
+			 			Monster2.setLayoutY(525);
+		 				Monster2.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster1.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster4.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				GoldSack2.setLayoutX(715);
+       			 		GoldSack2.setLayoutY(525);
+          			 }
+          			 
+          			 if(M3Spawn == 9 && despawnM3!= 1){  	        
+						Monster3.setLayoutX(550);
+			 			Monster3.setLayoutY(685);
+			 			Monster3.setVisible(true);
+			 			Monster8.setVisible(false);
+			 			Monster7.setVisible(false);
+			 			Monster2.setVisible(false);
+          			 	Monster1.setVisible(false);
+          			 	Monster4.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+			 			GoldSack3.setLayoutX(550);
+			 			GoldSack3.setLayoutY(685);
+          			 }
+          			if(M3Spawn == 10 && despawnM3!= 1){  	        
+		 				Monster3.setLayoutX(390);
+		 				Monster3.setLayoutY(685);
+		 				Monster3.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster1.setVisible(false);
+          			 	Monster4.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				GoldSack3.setLayoutX(390);
+		 				GoldSack3.setLayoutY(685);
+          			}
+          			if(M3Spawn == 11 && despawnM3!= 1){  	        
+		 				Monster3.setLayoutX(235);
+		 				Monster3.setLayoutY(685);
+		 				Monster3.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster1.setVisible(false);
+          			 	Monster4.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				GoldSack3.setLayoutX(235);
+		 				GoldSack3.setLayoutY(685);		
+          			}
+          			if(M4Spawn == 13 && despawnM4!= 1){  	        
+		 				Monster4.setLayoutX(75);
+		 				Monster4.setLayoutY(525);
+		 				Monster4.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				GoldSack4.setLayoutX(75);
+		 				GoldSack4.setLayoutY(525);		 				
+          			}
+          			if(M4Spawn == 14 && despawnM4!= 1){  	        
+		 				Monster4.setLayoutX(75);
+		 				Monster4.setLayoutY(375);
+		 				Monster4.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				GoldSack4.setLayoutX(75);
+		 				GoldSack4.setLayoutY(375);	 				
+          			}
+          			if(M4Spawn == 15 && despawnM4!= 1){  	        
+		 				Monster4.setLayoutX(75);
+		 				Monster4.setLayoutY(200);
+		 				Monster4.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+          			 	Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				GoldSack4.setLayoutX(75);
+		 				GoldSack4.setLayoutY(200);		 				
+          			}
+          			if(M5Spawn == 16 && despawnM5!= 1){  	        
+		 				Monster5.setLayoutX(235);
+		 				Monster5.setLayoutY(200);
+		 				Monster5.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster4.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+		 				GoldSack5.setLayoutX(235);
+		 				GoldSack5.setLayoutY(200);		 				
+          			}
+          			if(M5Spawn == 17 && despawnM5!= 1){  	        
+		 				Monster5.setLayoutX(390);
+		 				Monster5.setLayoutY(200);
+		 				Monster5.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster6.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster4.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+		 				GoldSack5.setLayoutX(390);
+		 				GoldSack5.setLayoutY(200);		 				
+          			}
+          			if(M6Spawn == 19 && despawnM6!= 1){  	        
+		 				Monster6.setLayoutX(550);
+		 				Monster6.setLayoutY(375);
+		 				Monster6.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster4.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+		 				GoldSack6.setLayoutX(550);
+		 				GoldSack6.setLayoutY(375);		 				
+          			}
+          			if(M6Spawn == 20 && despawnM6!= 1){  	        
+		 				Monster6.setLayoutX(550);
+		 				Monster6.setLayoutY(525);
+		 				Monster6.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				Monster7.setVisible(false);
+		 				Monster4.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+		 				GoldSack6.setLayoutX(550);
+		 				GoldSack6.setLayoutY(525);		 				
+          			}
+          			if(M7Spawn == 22 && despawnM7!= 1){  	        
+		 				Monster7.setLayoutX(235);
+		 				Monster7.setLayoutY(525);
+		 				Monster7.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				Monster4.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+		 				GoldSack7.setLayoutX(235);
+		 				GoldSack7.setLayoutY(525);		 				
+          			}
+          			if(M7Spawn == 23 && despawnM7!= 1){  	        
+		 				Monster7.setLayoutX(550);
+		 				Monster7.setLayoutY(375);
+		 				Monster7.setVisible(true);
+		 				Monster8.setVisible(false);
+		 				Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				Monster4.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+		 				GoldSack7.setLayoutX(550);
+		 				GoldSack7.setLayoutY(375);		 				
+          			}
+          			if(M8Spawn == 8 && despawnM8!= 1){  	        
+		 				Monster8.setLayoutX(715);
+		 				Monster8.setLayoutY(685);
+		 				Monster8.setVisible(true);
+		 				Monster7.setVisible(false);
+		 				Monster6.setVisible(false);
+		 				Monster5.setVisible(false);
+		 				Monster4.setVisible(false);
+		 				Monster2.setVisible(false);
+          			 	Monster3.setVisible(false);
+          			 	Monster1.setVisible(false);
+		 				GoldSack8.setLayoutX(715);
+		 				GoldSack8.setLayoutY(685);		 				
+          			}
+          			 
+          			 
+          			 	monsterhealth = 10;
+          			 	scene.setCursor(new ImageCursor(sword));
+          			 	M1Label.setLayoutX(890);
+			 			M1Label.setLayoutY(100);
+			 			Monster1m.setLayoutX(850);
+			 			Monster1m.setLayoutY(100);
+			    		
+		 				Monster1m.setVisible(true);
+		 				M1Label.setVisible(true); 
+          			 	M1Label.setFont(Font.font("Gungsuh", 26));
+		 				M1Label.setTextFill(Color.web("#FF0E0E"));
+		 				M1Label.setText(monsterhealth + "/" + monsterhealth);
+		 				
+		 				if(M1Spawn == 1 || M1Spawn == 2 || M1Spawn == 3){
+		 					if(despawnM1 == 1){
+		 						Monster1.setVisible(false);
+		 						Monster1.setDisable(true);
+		 					}
+		 					
+		 				monsterloss = 0;
+		 				damgtaken = 0;
+          				Monster1.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+          			     @Override
+          			     public void handle(MouseEvent event) {
+          			    	 do{
+          			        Random randomGen = new Random();
+          			        
+          			        for (int counter =0; counter < 1; counter++){
+          			        	damage = randomGen.nextInt(10);
+          			        	
+          			        	
+          			        }
+          			      damage1 = Integer.parseInt(Integer.toString(damage).substring(0, 1));
+    			        	
+
+          			        		if(damage1 == 0){
+          			        	   	monsterhealth = monsterhealth-1;         			        	          			        	   	
+          			        	   	monsterloss++;
+          			        		}
+          			        		if(damage1 == 1){
+          			               	charhealth = charhealth -1;         			               
+          			               	damgtaken++;
+          			        		}
+          			        		if(damage1 == 2){
+          			            	monsterhealth = monsterhealth-1;          			            	
+          			            	monsterloss++;          			        	   
+          			        		}
+          			        		if(damage1 == 3){
+          			            	monsterhealth = monsterhealth-1;         			            	
+          			            	monsterloss++;          			        	   	
+          			        		}
+          			        		if(damage1 == 4){
+          			            	charhealth = charhealth -1;          			            
+          			            	damgtaken++;
+          			        		}
+          			        		if(damage1 == 5){
+          			            	monsterhealth  = monsterhealth-1;          			            	
+          			            	monsterloss++;          			        	   	
+          			        		}
+          			        		if(damage1 == 6){
+          			            	charhealth = charhealth -1;         			            	
+          			            	damgtaken++;
+          			        		}
+          			        		if(damage1 == 7){
+          			            	monsterhealth = monsterhealth-1;        			            	
+          			            	monsterloss++;       			        	   
+          			        		}
+          			        		if(damage1 == 8){
+          			            	charhealth = charhealth -1;      			            	
+          			            	damgtaken++;
+          			        		}
+          			        		if(damage1 == 9){
+          			            	monsterhealth = monsterhealth-1;       			            	
+          			            	monsterloss++;        			        	   	
+          			        		}
+          			            	
+          			            	
+          			       M1Label.setText(monsterhealth + "/" + monsterhealth);
+          			       CharHealth.setText(charhealth + "/" + charhealth);  
+          			    	 }
+          			    	 while(monsterhealth > 0 && charhealth > 0);
+          			    	
+          			    	if(charhealth < 1){
+          			    		
+          			    		Monster1.setVisible(false);
+	           			 		textRecu.setValue(textRecu.getValue() + "\n" + "You Have Died" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");        			 		
+	           			 		Died();
+	           			 		
+          			    	}
+	           			 		
+	           			 	if(monsterhealth < 1){
+	           			 		Monster1.setVisible(false);
+	           			 		
+	           			 		M1Label.setVisible(false);
+	           			 		Monster1m.setVisible(false);
+	           			 		scene.setCursor(Cursor.CLOSED_HAND);
+	           			 		score1 = 5000;
+	           			 		score = score1 + score;
+	           			 		Score.setText("Score: " + score );
+	           			 		damage = 0;
+	           			 		GoldSack.setVisible(true);	           			 		
+	           			 		textRecu.setValue(textRecu.getValue() + "\n" + "Monster Killed" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");	 
+	           			 		
+	           			 		if(M1Spawn >= 1 && M1Spawn <= 3 && monsterkills < 1){
+	           			 		monsterkills = monsterkills + 1;
+	           			 		lblmonsterkills.setText((monsterkills + "/" + "8"));
+	           			 		textRecu.setValue(textRecu.getValue() +  "\n" + monsterkills + "/8 tokens found" + "\n");
+       			 				despawnM1++;
+       			 			 Random random2 = new Random();
+       			 			 int M2SpawnLow = 5;
+       			 			 int M2SpawnHigh = 8;
+       			 			 M2Spawn = random2.nextInt(M2SpawnHigh - M2SpawnLow) + M2SpawnLow;
+       			 			
+	           			 		}
+	           			 	if(charhealth < 1){
+	           			 	GoldSack.setVisible(false);
+	           			 			
+	           			 	}
+	           			 	
+	           			 	}
+          			     } 
+          			     
+          			});
+		 	}
+		 				
+	if(M2Spawn == 5 || M2Spawn == 6 || M2Spawn == 7){
+		if(despawnM2 == 1){
+				Monster2.setVisible(false);
+				Monster2.setDisable(true);
+			}
+		monsterloss = 0;
+		damgtaken = 0;
+        Monster2.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+             			     @Override
+             			     public void handle(MouseEvent event) {
+             			    	 
+             			    	 do{
+             			        Random randomGen1 = new Random();
+             			        
+             			        for (int counter1 =0; counter1 < 1; counter1++){
+             			        	damage = randomGen1.nextInt(10);
+             			        	
+             			        	
+             			        }
+             			      damage1 = Integer.parseInt(Integer.toString(damage).substring(0, 1));
+       			        	
+
+             			        		if(damage1 == 0){
+             			        	   	monsterhealth = monsterhealth-1;         			        	          			        	   	
+             			        	   	monsterloss++;
+             			        		}
+             			        		if(damage1 == 1){
+             			               	charhealth = charhealth -1;         			               
+             			               	damgtaken++;
+             			        		}
+             			        		if(damage1 == 2){
+             			            	monsterhealth = monsterhealth-1;          			            	
+             			            	monsterloss++;          			        	   
+             			        		}
+             			        		if(damage1 == 3){
+             			            	monsterhealth = monsterhealth-1;         			            	
+             			            	monsterloss++;          			        	   	
+             			        		}
+             			        		if(damage1 == 4){
+             			            	charhealth = charhealth -1;          			            
+             			            	damgtaken++;
+             			        		}
+             			        		if(damage1 == 5){
+             			            	monsterhealth  = monsterhealth-1;          			            	
+             			            	monsterloss++;          			        	   	
+             			        		}
+             			        		if(damage1 == 6){
+             			            	charhealth = charhealth -1;         			            	
+             			            	damgtaken++;
+             			        		}
+             			        		if(damage1 == 7){
+             			            	monsterhealth = monsterhealth-1;        			            	
+             			            	monsterloss++;       			        	   
+             			        		}
+             			        		if(damage1 == 8){
+             			            	charhealth = charhealth -1;      			            	
+             			            	damgtaken++;
+             			        		}
+             			        		if(damage1 == 9){
+             			            	monsterhealth = monsterhealth-1;       			            	
+             			            	monsterloss++;        			        	   	
+             			        		}
+             			            	
+             			            	
+             			       M1Label.setText(monsterhealth + "/" + monsterhealth);
+             			       CharHealth.setText(charhealth + "/" + charhealth);  
+             			    	 }
+             			    	 while(monsterhealth > 0 && charhealth > 0);
+             			    	
+             			    	if(charhealth < 1){
+             			    		
+             			    		Monster2.setVisible(false);
+             			    		Died();
+   	           			 			
+             			    	}
+   	           			 		
+   	           			 		if(monsterhealth < 1){
+   	           			 		Monster2.setVisible(false);		 		
+   	           			 		M1Label.setVisible(false);
+   	           			 		Monster1m.setVisible(false);
+   	           			 		scene.setCursor(Cursor.CLOSED_HAND);
+   	           			 		score1 = 5000;
+   	           			 		score = score1 + score;
+   	           			 		Score.setText("Score: " + score );
+   	           			 		damage = 0;
+   	           			 		GoldSack2.setVisible(true);	           			 		
+   	           			 		textRecu.setValue(textRecu.getValue() +  "\n" + "Monster Killed" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");	 
+   	           			 		
+   	           			 		if(M2Spawn >= 5 && M2Spawn <= 7 && monsterkills < 2){ 
+   	           			 			monsterkills = monsterkills + 1;
+   	           			 			lblmonsterkills.setText((monsterkills + "/" + "8"));
+   	           			 			textRecu.setValue(textRecu.getValue() +  "\n" + monsterkills + "/8 tokens found" + "\n");
+          			 				despawnM2++;
+          			 				Random random2 = new Random();
+          			 				int M3SpawnLow = 9;
+          			 				int M3SpawnHigh = 12;
+          			 				M3Spawn = random2.nextInt(M3SpawnHigh - M3SpawnLow) + M3SpawnLow;
+          			 				//System.out.println(M3Spawn);
+          			 				
+   	           			 		}
+   	           			 	if(charhealth < 1){
+   	           			 		GoldSack2.setVisible(false);
+   	           			 			
+   	           			 	}
+   	           			 }
+             		} 
+             			     
+          		});
+		 	}
+	if(M3Spawn == 9 || M3Spawn == 10 || M3Spawn == 11){
+		if(despawnM3 == 1){
+				Monster3.setVisible(false);
+				Monster3.setDisable(true);
+			}
+		monsterloss = 0;
+		damgtaken = 0;
+	     Monster3.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+	          			     @Override
+	          			     public void handle(MouseEvent event) { 
+	          			    	 do{
+	          			        Random randomGen3 = new Random();
+	          			        
+	          			        for (int counter3 =0; counter3 < 1; counter3++){
+	          			        	damage = randomGen3.nextInt(10);
+	          			        	
+	          			        	
+	          			        }
+	          			      damage1 = Integer.parseInt(Integer.toString(damage).substring(0, 1));
+	    			        	
+
+	          			        		if(damage1 == 0){
+	          			        	   	monsterhealth = monsterhealth-1;         			        	          			        	   	
+	          			        	   	monsterloss++;
+	          			        		}
+	          			        		if(damage1 == 1){
+	          			               	charhealth = charhealth -1;         			               
+	          			               	damgtaken++;
+	          			        		}
+	          			        		if(damage1 == 2){
+	          			            	monsterhealth = monsterhealth-1;          			            	
+	          			            	monsterloss++;          			        	   
+	          			        		}
+	          			        		if(damage1 == 3){
+	          			            	monsterhealth = monsterhealth-1;         			            	
+	          			            	monsterloss++;          			        	   	
+	          			        		}
+	          			        		if(damage1 == 4){
+	          			            	charhealth = charhealth -1;          			            
+	          			            	damgtaken++;
+	          			        		}
+	          			        		if(damage1 == 5){
+	          			            	monsterhealth  = monsterhealth-1;          			            	
+	          			            	monsterloss++;          			        	   	
+	          			        		}
+	          			        		if(damage1 == 6){
+	          			            	charhealth = charhealth -1;         			            	
+	          			            	damgtaken++;
+	          			        		}
+	          			        		if(damage1 == 7){
+	          			            	monsterhealth = monsterhealth-1;        			            	
+	          			            	monsterloss++;       			        	   
+	          			        		}
+	          			        		if(damage1 == 8){
+	          			            	charhealth = charhealth -1;      			            	
+	          			            	damgtaken++;
+	          			        		}
+	          			        		if(damage1 == 9){
+	          			            	monsterhealth = monsterhealth-1;       			            	
+	          			            	monsterloss++;        			        	   	
+	          			        		}
+	          			            	
+	          			            	
+	          			       M1Label.setText(monsterhealth + "/" + monsterhealth);
+	          			       CharHealth.setText(charhealth + "/" + charhealth);  
+	          			    	
+	          			    	 }
+	          			    	 while(monsterhealth > 0 && charhealth > 0);
+	          			    	if(charhealth < 1){
+	          			    		
+	          			    		Monster3.setVisible(false);
+	          			    		Died();
+		           			 	
+	          			    	}
+		           			 		
+		           			 	if(monsterhealth < 1){
+		           			 		Monster3.setVisible(false);
+		           			 		
+		           			 		M1Label.setVisible(false);
+		           			 		Monster1m.setVisible(false);
+		           			 		scene.setCursor(Cursor.CLOSED_HAND);
+		           			 		score1 = 5000;
+		           			 		score = score1 + score;
+		           			 		Score.setText("Score: " + score );
+		           			 		damage = 0;
+		           			 		GoldSack3.setVisible(true);	           			 		
+		           			 		textRecu.setValue(textRecu.getValue() +  "\n" + "Monster Killed" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");	 
+		           			 		
+		           			 		if(M3Spawn >= 9 && M3Spawn <= 11 && monsterkills < 3){ 
+		           			 			monsterkills = monsterkills + 1;
+		           			 			lblmonsterkills.setText((monsterkills + "/" + "8"));
+		           			 			textRecu.setValue(textRecu.getValue() +  "\n" + monsterkills + "/8 tokens found" + "\n");
+		           			 			despawnM3++;
+		           			 			Random random3 = new Random();
+		           			 			int M4SpawnLow = 13;
+		           			 			int M4SpawnHigh = 16;
+		           			 			M4Spawn = random3.nextInt(M4SpawnHigh - M4SpawnLow) + M4SpawnLow;
+		           			 		}
+		           			 		
+		           			 	if(charhealth < 1){
+		           			 	GoldSack3.setVisible(false);
+		           			 			
+		           			 	}
+		           			 	}
+	          			     } 
+	          			     
+	          			  });
+	     if(M4Spawn == 13 || M4Spawn == 14 || M4Spawn == 15){
+	    	 if(despawnM4 == 1){
+					Monster4.setVisible(false);
+					Monster4.setDisable(true);
+				}
+	    	 monsterloss = 0;
+	 		 damgtaken = 0;
+	 		 Monster4.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+	    	 
+	    	 
+			     @Override
+			     public void handle(MouseEvent event) {   
+			    	 do{
+			        Random randomGen33 = new Random();
+			        
+			        for (int counter33 =0; counter33 < 1; counter33++){
+			        	damage = randomGen33.nextInt(10);
+			        	
+			        	
+			        }
+			      damage1 = Integer.parseInt(Integer.toString(damage).substring(0, 1));
+	        	
+
+			        		if(damage1 == 0){
+			        	   	monsterhealth = monsterhealth-1;         			        	          			        	   	
+			        	   	monsterloss++;
+			        		}
+			        		if(damage1 == 1){
+			               	charhealth = charhealth -1;         			               
+			               	damgtaken++;
+			        		}
+			        		if(damage1 == 2){
+			            	monsterhealth = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   
+			        		}
+			        		if(damage1 == 3){
+			            	monsterhealth = monsterhealth-1;         			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 4){
+			            	charhealth = charhealth -1;          			            
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 5){
+			            	monsterhealth  = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 6){
+			            	charhealth = charhealth -1;         			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 7){
+			            	monsterhealth = monsterhealth-1;        			            	
+			            	monsterloss++;       			        	   
+			        		}
+			        		if(damage1 == 8){
+			            	charhealth = charhealth -1;      			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 9){
+			            	monsterhealth = monsterhealth-1;       			            	
+			            	monsterloss++;        			        	   	
+			        		}
+			            	
+			            	
+			       M1Label.setText(monsterhealth + "/" + monsterhealth);
+			       CharHealth.setText(charhealth + "/" + charhealth);  
+			    	 }
+			    	 while(monsterhealth > 0 && charhealth > 0);
+			    	
+			    	if(charhealth < 1){
+			    		
+			    		Monster4.setVisible(false);
+			    		Died();
+   			 		
+			    	}
+   			 		
+   			 	if(monsterhealth < 1){
+   			 		Monster4.setVisible(false);
+   			 		
+   			 		M1Label.setVisible(false);
+   			 		Monster1m.setVisible(false);
+   			 		scene.setCursor(Cursor.CLOSED_HAND);
+   			 		score1 = 5000;
+   			 		score = score1 + score;
+   			 		Score.setText("Score: " + score );
+   			 		damage = 0;
+   			 		GoldSack4.setVisible(true);	           			 		
+   			 		textRecu.setValue(textRecu.getValue() +  "\n" + "Monster Killed" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");	 
+   			 		
+   			 		if(M4Spawn >= 13 && M4Spawn <= 15 && monsterkills < 4){ 
+   			 			monsterkills = monsterkills + 1;
+   			 			lblmonsterkills.setText((monsterkills + "/" + "8"));
+   			 			textRecu.setValue(textRecu.getValue() +  "\n" + monsterkills + "/8 tokens found" + "\n");
+   			 			despawnM4++;
+   			 			Random random39 = new Random();
+   			 			int M5SpawnLow = 16;
+   			 			int M5SpawnHigh = 18;
+   			 			M5Spawn = random39.nextInt(M5SpawnHigh - M5SpawnLow) + M5SpawnLow;
+   			 		}
+   			 		
+   			 	if(charhealth < 1){
+   			 	GoldSack4.setVisible(false);
+   			 			
+   			 	}
+   			 	}
+			     } 
+			     
+			  });
+	     }
+	     if(M5Spawn == 16 || M5Spawn == 17){
+	    	 if(despawnM5 == 1){
+					Monster5.setVisible(false);
+					Monster5.setDisable(true);
+				}
+	    	 monsterloss = 0;
+	 		 damgtaken = 0;
+	 		 Monster5.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+	    	 
+	    	 
+			     @Override
+			     public void handle(MouseEvent event) {   
+			    	 do{
+			        Random randomGen333 = new Random();
+			        
+			        for (int counter333 =0; counter333 < 1; counter333++){
+			        	damage = randomGen333.nextInt(10);
+			        	
+			        	
+			        }
+			      damage1 = Integer.parseInt(Integer.toString(damage).substring(0, 1));
+	        	
+
+			        		if(damage1 == 0){
+			        	   	monsterhealth = monsterhealth-1;         			        	          			        	   	
+			        	   	monsterloss++;
+			        		}
+			        		if(damage1 == 1){
+			               	charhealth = charhealth -1;         			               
+			               	damgtaken++;
+			        		}
+			        		if(damage1 == 2){
+			            	monsterhealth = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   
+			        		}
+			        		if(damage1 == 3){
+			            	monsterhealth = monsterhealth-1;         			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 4){
+			            	charhealth = charhealth -1;          			            
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 5){
+			            	monsterhealth  = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 6){
+			            	charhealth = charhealth -1;         			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 7){
+			            	monsterhealth = monsterhealth-1;        			            	
+			            	monsterloss++;       			        	   
+			        		}
+			        		if(damage1 == 8){
+			            	charhealth = charhealth -1;      			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 9){
+			            	monsterhealth = monsterhealth-1;       			            	
+			            	monsterloss++;        			        	   	
+			        		}
+			            	
+			            	
+			       M1Label.setText(monsterhealth + "/" + monsterhealth);
+			       CharHealth.setText(charhealth + "/" + charhealth);  
+			    	 }
+			    	 while(monsterhealth > 0 && charhealth > 0);
+			    	
+			    	if(charhealth < 1){
+			    		
+			    		Monster5.setVisible(false);
+			    		Died();
+   			 			
+			    	}
+   			 		
+   			 	if(monsterhealth < 1){
+   			 		Monster5.setVisible(false);
+   			 		
+   			 		M1Label.setVisible(false);
+   			 		Monster1m.setVisible(false);
+   			 		scene.setCursor(Cursor.CLOSED_HAND);
+   			 		score1 = 5000;
+   			 		score = score1 + score;
+   			 		Score.setText("Score: " + score );
+   			 		damage = 0;
+   			 		GoldSack5.setVisible(true);	           			 		
+   			 		textRecu.setValue(textRecu.getValue() +  "\n" + "Monster Killed" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");	 
+   			 		
+   			 		if(M5Spawn >= 16 && M5Spawn <= 17 && monsterkills < 5){ 
+   			 			monsterkills = monsterkills + 1;
+   			 			lblmonsterkills.setText((monsterkills + "/" + "8"));
+   			 			textRecu.setValue(textRecu.getValue() +  "\n" + monsterkills + "/8 tokens found" + "\n");
+   			 			despawnM5++;
+   			 			Random random393 = new Random();
+   			 			int M6SpawnLow = 19;
+   			 			int M6SpawnHigh = 21;
+   			 			M6Spawn = random393.nextInt(M6SpawnHigh - M6SpawnLow) + M6SpawnLow;
+   			 		}
+   			 		
+   			 	if(charhealth < 1){
+   			 	GoldSack5.setVisible(false);
+   			 			
+   			 	}
+   			 	}
+			     } 
+			     
+			  });
+	     }
+	     if(M6Spawn == 19 || M6Spawn == 20){
+	    	 if(despawnM6 == 1){
+					Monster6.setVisible(false);
+					Monster6.setDisable(true);
+				}
+	    	 monsterloss = 0;
+	 		 damgtaken = 0;
+	 		 Monster6.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+	    	 
+	    	 
+			     @Override
+			     public void handle(MouseEvent event) {   
+			    	 do{
+			        Random randomGen333 = new Random();
+			        
+			        for (int counter333 =0; counter333 < 1; counter333++){
+			        	damage = randomGen333.nextInt(10);
+			        	
+			        	
+			        }
+			      damage1 = Integer.parseInt(Integer.toString(damage).substring(0, 1));
+	        	
+
+			        		if(damage1 == 0){
+			        	   	monsterhealth = monsterhealth-1;         			        	          			        	   	
+			        	   	monsterloss++;
+			        		}
+			        		if(damage1 == 1){
+			               	charhealth = charhealth -1;         			               
+			               	damgtaken++;
+			        		}
+			        		if(damage1 == 2){
+			            	monsterhealth = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   
+			        		}
+			        		if(damage1 == 3){
+			            	monsterhealth = monsterhealth-1;         			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 4){
+			            	charhealth = charhealth -1;          			            
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 5){
+			            	monsterhealth  = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 6){
+			            	charhealth = charhealth -1;         			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 7){
+			            	monsterhealth = monsterhealth-1;        			            	
+			            	monsterloss++;       			        	   
+			        		}
+			        		if(damage1 == 8){
+			            	charhealth = charhealth -1;      			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 9){
+			            	monsterhealth = monsterhealth-1;       			            	
+			            	monsterloss++;        			        	   	
+			        		}
+			            	
+			            	
+			       M1Label.setText(monsterhealth + "/" + monsterhealth);
+			       CharHealth.setText(charhealth + "/" + charhealth);  
+			    	 }
+			    	 while(monsterhealth > 0 && charhealth > 0);
+			    	
+			    	if(charhealth < 1){
+			    		
+			    		Monster6.setVisible(false);
+			    		Died();
+			    	}
+   			 		
+   			 	if(monsterhealth < 1){
+   			 		Monster6.setVisible(false);
+   			 		
+   			 		M1Label.setVisible(false);
+   			 		Monster1m.setVisible(false);
+   			 		scene.setCursor(Cursor.CLOSED_HAND);
+   			 		score1 = 5000;
+   			 		score = score1 + score;
+   			 		Score.setText("Score: " + score );
+   			 		damage = 0;
+   			 		GoldSack6.setVisible(true);	           			 		
+   			 		textRecu.setValue(textRecu.getValue() +  "\n" + "Monster Killed" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");	 
+   			 		
+   			 		if(M6Spawn >= 19 && M6Spawn <= 20 && monsterkills < 6){ 
+   			 			monsterkills = monsterkills + 1;
+   			 			lblmonsterkills.setText((monsterkills + "/" + "8"));
+   			 			textRecu.setValue(textRecu.getValue() +  "\n" + monsterkills + "/8 tokens found" + "\n");
+   			 			despawnM6++;
+   			 			Random random3935 = new Random();
+   			 			int M7SpawnLow = 22;
+   			 			int M7SpawnHigh = 23;
+   			 			M7Spawn = random3935.nextInt(M7SpawnHigh - M7SpawnLow) + M7SpawnLow;
+   			 		}
+   			 		
+   			 	if(charhealth < 1){
+   			 	GoldSack6.setVisible(false);
+   			 			
+   			 	}
+   			 	}
+			     } 
+			     
+			  });
+	     }
+	     if(M7Spawn == 22 || M7Spawn == 23){
+	    	 if(despawnM7 == 1){
+					Monster7.setVisible(false);
+					Monster7.setDisable(true);
+				}
+	    	 monsterloss = 0;
+	 		 damgtaken = 0;
+	 		 Monster7.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+	    	 
+	    	 
+			     @Override
+			     public void handle(MouseEvent event) {   
+			    	 do{
+			        Random randomGen333y = new Random();
+			        
+			        for (int counter333y =0; counter333y < 1; counter333y++){
+			        	damage = randomGen333y.nextInt(10);
+			        	
+			        	
+			        }
+			      damage1 = Integer.parseInt(Integer.toString(damage).substring(0, 1));
+	        	
+
+			        		if(damage1 == 0){
+			        	   	monsterhealth = monsterhealth-1;         			        	          			        	   	
+			        	   	monsterloss++;
+			        		}
+			        		if(damage1 == 1){
+			               	charhealth = charhealth -1;         			               
+			               	damgtaken++;
+			        		}
+			        		if(damage1 == 2){
+			            	monsterhealth = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   
+			        		}
+			        		if(damage1 == 3){
+			            	monsterhealth = monsterhealth-1;         			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 4){
+			            	charhealth = charhealth -1;          			            
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 5){
+			            	monsterhealth  = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 6){
+			            	charhealth = charhealth -1;         			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 7){
+			            	monsterhealth = monsterhealth-1;        			            	
+			            	monsterloss++;       			        	   
+			        		}
+			        		if(damage1 == 8){
+			            	charhealth = charhealth -1;      			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 9){
+			            	monsterhealth = monsterhealth-1;       			            	
+			            	monsterloss++;        			        	   	
+			        		}
+			            	
+			            	
+			       M1Label.setText(monsterhealth + "/" + monsterhealth);
+			       CharHealth.setText(charhealth + "/" + charhealth);  
+			    	 }
+			    	 while(monsterhealth > 0 && charhealth > 0);
+			    	
+			    	if(charhealth < 1){
+			    		
+			    		Monster7.setVisible(false);
+			    		Died();
+			    	}
+   			 		
+   			 	if(monsterhealth < 1){
+   			 		Monster7.setVisible(false);
+   			 		
+   			 		M1Label.setVisible(false);
+   			 		Monster1m.setVisible(false);
+   			 		scene.setCursor(Cursor.CLOSED_HAND);
+   			 		score1 = 5000;
+   			 		score = score1 + score;
+   			 		Score.setText("Score: " + score );
+   			 		damage = 0;
+   			 		GoldSack7.setVisible(true);	           			 		
+   			 		textRecu.setValue(textRecu.getValue() +  "\n" + "Monster Killed" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");	 
+   			 		
+   			 		if(M7Spawn >= 22&& M7Spawn <= 23 && monsterkills < 7){ 
+   			 			monsterkills = monsterkills + 1;
+   			 			lblmonsterkills.setText((monsterkills + "/" + "8"));
+   			 			textRecu.setValue(textRecu.getValue() +  "\n" + monsterkills + "/8 tokens found" + "\n");
+   			 			despawnM7++;
+   			 			M8Spawn = 8;
+   			 		}
+   			 		
+   			 	if(charhealth < 1){
+   			 	GoldSack7.setVisible(false);
+   			 			
+   			 	}
+   			 	}
+			     } 
+			     
+			  });
+	     }
+	     if(M8Spawn == 8){
+	    	 if(despawnM8 == 1){
+					Monster8.setVisible(false);
+					Monster8.setDisable(true);
+				}
+	    	 monsterloss = 0;
+	 		 damgtaken = 0;
+	 		 Monster8.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+	    	 
+	    	 
+			     @Override
+			     public void handle(MouseEvent event) {   
+			    	 do{
+			        Random randomGen333y7 = new Random();
+			        
+			        for (int counter333y7 =0; counter333y7 < 1; counter333y7++){
+			        	damage = randomGen333y7.nextInt(10);
+			        	
+			        	
+			        }
+			      damage1 = Integer.parseInt(Integer.toString(damage).substring(0, 1));
+	        	
+
+			        		if(damage1 == 0){
+			        	   	monsterhealth = monsterhealth-1;         			        	          			        	   	
+			        	   	monsterloss++;
+			        		}
+			        		if(damage1 == 1){
+			               	charhealth = charhealth -1;         			               
+			               	damgtaken++;
+			        		}
+			        		if(damage1 == 2){
+			            	monsterhealth = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   
+			        		}
+			        		if(damage1 == 3){
+			            	monsterhealth = monsterhealth-1;         			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 4){
+			            	charhealth = charhealth -1;          			            
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 5){
+			            	monsterhealth  = monsterhealth-1;          			            	
+			            	monsterloss++;          			        	   	
+			        		}
+			        		if(damage1 == 6){
+			            	charhealth = charhealth -1;         			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 7){
+			            	monsterhealth = monsterhealth-1;        			            	
+			            	monsterloss++;       			        	   
+			        		}
+			        		if(damage1 == 8){
+			            	charhealth = charhealth -1;      			            	
+			            	damgtaken++;
+			        		}
+			        		if(damage1 == 9){
+			            	monsterhealth = monsterhealth-1;       			            	
+			            	monsterloss++;        			        	   	
+			        		}
+			            	
+			            	
+			       M1Label.setText(monsterhealth + "/" + monsterhealth);
+			       CharHealth.setText(charhealth + "/" + charhealth);  
+			    	 }
+			    	 while(monsterhealth > 0 && charhealth > 0);
+			    	
+			    	if(charhealth < 1){
+			    		
+			    		Monster8.setVisible(false);
+			    		Died();
+			    	}
+   			 		
+   			 	if(monsterhealth < 1){
+   			 		Monster8.setVisible(false);
+   			 		
+   			 		M1Label.setVisible(false);
+   			 		Monster1m.setVisible(false);
+   			 		scene.setCursor(Cursor.CLOSED_HAND);
+   			 		score1 = 5000;
+   			 		score = score1 + score;
+   			 		Score.setText("Score: " + score );
+   			 		damage = 0;
+   			 		GoldSack8.setVisible(true);	           			 		
+   			 		textRecu.setValue(textRecu.getValue() +  "\n" + "Monster Killed" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");	 
+   			 		
+   			 		if(M8Spawn == 8 &&  monsterkills < 8){ 
+   			 			monsterkills = monsterkills + 1;
+   			 			lblmonsterkills.setText((monsterkills + "/" + "8"));
+   			 			textRecu.setValue(textRecu.getValue() +  "\n" + monsterkills + "/8 tokens found" + "\n");
+   			 			despawnM8++;
+   			 			Boss1Spawn = 24;
+   			 			textRecu.setValue(textRecu.getValue() +  "\n" + "GROUND SHAKES" + "\n" + "THIS CAN'T BE GOOD!"+ "\n");
+   			 		}
+   			 		
+   			 	if(charhealth < 1){
+   			 	GoldSack8.setVisible(false);
+   			 			
+   			 	}
+   			 	}
+			     } 
+			     
+			  });
+	     }
+		 	}		
+         }
+	            
+if (currentroom == chest1 && key > 0){
+		 
+		 Chest1.setDisable(false);
+		 scene.setCursor(Cursor.CLOSED_HAND);
+	}
+if (currentroom != chest1 || key <= 0){
+		Chest1.setVisible(true);
+		Chest1.setDisable(true);
+	}
+
+else if (despawnM2 == 1){
+	Monster2.setVisible(false);
+}
+else if (despawnM3 == 1){
+	Monster3.setVisible(false);
+}
+else if (despawnM4 == 1){
+	Monster4.setVisible(false);
+}
+else if (despawnM5 == 1){
+	Monster5.setVisible(false);
+}
+else if (despawnM6 == 1){
+	Monster6.setVisible(false);
+}
+else if (despawnM7 == 1){
+	Monster7.setVisible(false);
+}
+else if (despawnM8 == 1){
+	Monster8.setVisible(false);
+}
+
+
+
+if (Direction == "potion" && Potion >= 1){
+		charhealth1 = 5;
+		textRecu.setValue(textRecu.getValue() + "\n" +"Potion Used "+ charhealth1 + " Life Gained" +"\n");
+		charhealth = charhealth + charhealth1;
+    	CharHealth.setText(charhealth + "/" + charhealth);
+    	Potion = Potion - 1;
+    	potion1.setText("" + Potion);
+	 	}
+ else if (Direction == "potion" && Potion <= 0){
+		textRecu.setValue(textRecu.getValue()+ "\n" + "No Potions to Use" + "\n");
+	 }
+if (monsterkills == 8 && Boss1Spawn == 24 && currentroom == 24 && despawnB1 == 0){
+	
+	endlvl = 1;
+	monsterhealth = 20;
+	M1Label.setVisible(true);
+	M1Label.setLayoutX(890);
+	M1Label.setLayoutY(100);
+	Boss1.setLayoutX(390);
+	Boss1.setLayoutY(350);
+	M1Label.setText(monsterhealth + "/" + monsterhealth);
+	scene.setCursor(new ImageCursor(sword));
+	BMenu.setVisible(true);
+	Boss1.setVisible(true);
+	Monster8.setVisible(false);
+	Monster7.setVisible(false);
+	Monster6.setVisible(false);
+	Monster5.setVisible(false);
+	Monster4.setVisible(false);
+	Monster2.setVisible(false);
+	Monster3.setVisible(false);
+	Monster1.setVisible(false);
+	
+	 	monsterloss = 0;
+		 damgtaken = 0;
+		 Boss1.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+	 
+	 
+	     @Override
+	     public void handle(MouseEvent event) {   
+	    	 do{
+	        Random randomGen333y7r = new Random();
+	        
+	        for (int counter333y7r =0; counter333y7r < 1; counter333y7r++){
+	        	damage = randomGen333y7r.nextInt(10);
+	        	
+	        	
+	        }
+	      damage1 = Integer.parseInt(Integer.toString(damage).substring(0, 1));
+    	
+
+	        		if(damage1 == 0){
+	        	   	monsterhealth = monsterhealth-1;         			        	          			        	   	
+	        	   	monsterloss++;
+	        		}
+	        		if(damage1 == 1){
+	               	charhealth = charhealth -2;         			               
+	               	damgtaken++;
+	               	damgtaken++;
+	        		}
+	        		if(damage1 == 2){
+	            	monsterhealth = monsterhealth-1;          			            	
+	            	monsterloss++;          			        	   
+	        		}
+	        		if(damage1 == 3){
+	            	monsterhealth = monsterhealth-1;         			            	
+	            	monsterloss++;          			        	   	
+	        		}
+	        		if(damage1 == 4){
+	            	charhealth = charhealth -1;          			            
+	            	damgtaken++;
+	        		}
+	        		if(damage1 == 5){
+	            	monsterhealth  = monsterhealth-1;          			            	
+	            	monsterloss++;          			        	   	
+	        		}
+	        		if(damage1 == 6){
+	            	charhealth = charhealth -2;         			            	
+	            	damgtaken++;
+	            	damgtaken++;
+	        		}
+	        		if(damage1 == 7){
+	            	monsterhealth = monsterhealth-1;        			            	
+	            	monsterloss++;       			        	   
+	        		}
+	        		if(damage1 == 8){
+	            	charhealth = charhealth -2;      			            	
+	            	damgtaken++;
+	            	damgtaken++;
+	        		}
+	        		if(damage1 == 9){
+	            	monsterhealth = monsterhealth-2;       			            	
+	            	monsterloss++;
+	            	monsterloss++;
+	        		}
+	            	
+	            	
+	       M1Label.setText(monsterhealth + "/" + monsterhealth);
+	       CharHealth.setText(charhealth + "/" + charhealth);  
+	    	 }
+	    	 while(monsterhealth > 0 && charhealth > 0);
+	    	
+	    	if(charhealth < 1){
+	    		ChestB.setVisible(false);	    		
+	    		Boss1.setVisible(false);
+		 		textRecu.setValue(textRecu.getValue() +  "\n" + "You Have Died" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");
+		 		Died();
+		 			
+	    	}
+		 		
+		 	if(monsterhealth < 1){
+		 		Boss1.setVisible(false);		 		
+		 		M1Label.setVisible(false);
+		 		BMenu.setVisible(false);
+		 		scene.setCursor(Cursor.CLOSED_HAND);
+		 		score1 = 10000;
+		 		score = score1 + score;
+		 		Score.setText("Score: " + score );
+		 		damage = 0;           			 		
+		 		textRecu.setValue(textRecu.getValue() +  "\n" + "Boss Killed" +"\n"+"Damage Dealt: "+monsterloss +  "\n"+"Damage Taken: " + damgtaken + "\n");	 
+		 		ChestB.setVisible(true);
+		 		ChestB.setLayoutX(390);
+		 		ChestB.setLayoutY(350);	 		 
+		 		despawnB1++;
+		 		
+		 		ChestB.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+				     @Override
+				     public void handle(MouseEvent event) {	
+				    	 
+				    	 Random randomGenz1q = new Random();
+					        
+					        for (int counterz1q =0; counterz1q < 1; counterz1q++){
+					        	sackloot = randomGenz1q.nextInt(7);
+					        	System.out.println(sackloot);
+					        }
+				        
+				        	switch(sackloot){
+				        	
+				        	case 0:
+				        		goldc = 300;
+				        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+				        		
+				        		charhealth1 = 10;
+				        		score1 = 5000;			           			        		
+				        		key = key + 1;
+				        		textRecu.setValue(textRecu.getValue() + " Key Found" +"\n");
+				        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+				        		ChestB.setVisible(false);
+				        		break;
+				        	case 1:
+				        		goldc = 400;
+				        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc + " Gold" +"\n");
+				        		
+				        		charhealth1 = 8;
+				        		score1 = 5000;
+				        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+				        		ChestB.setVisible(false);
+				        		break;
+				        	case 2:
+				        		goldc = 450;
+				        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+				        		
+				        		charhealth1 = 10;
+				        		score1 = 5000;
+				        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+				        		ChestB.setVisible(false);
+				        		break;
+				        	case 3:
+				        		goldc = 300;
+				        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+				        		
+				        		ChestB.setVisible(false);
+				        		charhealth1 =  10;
+				        		score1 = 3000;
+				        		Potion = Potion + 1;
+				        		textRecu.setValue(textRecu.getValue() + "Picked Up Potion" +"\n");
+				        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+				        		break;
+				        	case 4:
+				        		goldc =  500;
+				        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+				        	
+				        		ChestB.setVisible(false);
+				        		charhealth1 = 10;
+				        		score1 =5000;
+				        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+				        		break;
+				        	case 5:
+				        		goldc = 300;
+				        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+				        		
+				        		ChestB.setVisible(false);
+				        		charhealth1 = 10;
+				        		score1 = 5000;
+				        		key = key + 1;
+				        		textRecu.setValue(textRecu.getValue() +  key + " Key Found" +"\n");
+				        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+				        		break;
+				        	case 6:
+				        		goldc = 350;
+				        		textRecu.setValue(textRecu.getValue() + "\n" + "Picked Up: "+ goldc+ " Gold" +"\n");
+				        		
+				        		ChestB.setVisible(false);
+				        		charhealth1 = 10;
+				        		score1 =  5000;
+				        		textRecu.setValue(textRecu.getValue() + "Gained "+ charhealth1 + " Life" +"\n");
+				        		break;
+				        		
+				        	}
+				        	lblmonsterkills.setVisible(false);
+				        	monsterdeath.setVisible(false);
+				        	btnstart.setVisible(true);
+				        	tacombatlog.setVisible(true);
+				        	MainMenu.setVisible(false);
+				        	Main.setVisible(false);
+				        	level1.setVisible(false);
+				        	EndLevel.setVisible(true);
+				        	MMenu.setVisible(false);
+				        	FMenu.setVisible(false);
+				        	Name.setDisable(true);	
+				        	Name.setVisible(false);
+				        	name.setVisible(false);	
+				        	hero.setVisible(false);				       				     
+				        	CharHealth.setVisible(true);
+				        	Gold.setVisible(true);
+				        	Key.setVisible(true);
+				        	Keys.setVisible(true);
+				        	GLabel.setVisible(true);
+				        	Score.setVisible(true);
+				        	Hero1.setVisible(false);
+				        	HeroF1.setVisible(false);
+				        	Chest1.setVisible(false);
+				        	
+				        	Score.setLayoutX(300);
+				            Score.setLayoutY(550);
+				            Score.setFont(Font.font("Matura MT Script Capitals", 48));
+				            Score.setTextFill(Color.web("#0E6B00"));
+				           	
+				            tacombatlog.setDisable(false);
+				                 
+				            GLabel.setLayoutX(390);
+				            GLabel.setLayoutY(382);
+				           
+				             
+				            Gold.setLayoutX(350);
+				            Gold.setLayoutY(400);
+				                
+				            Key.setLayoutX(390);
+				            Key.setLayoutY(432);
+				            
+				              
+				            Keys.setLayoutX(350);
+				            Keys.setLayoutY(450);
+				                  
+				            potion.setLayoutX(350);
+				            potion.setLayoutY(500);
+				            
+				            potion1.setLayoutX(390);
+				            potion1.setLayoutY(482);
+				            
+				               
+				            CharHealth.setLayoutX(415);
+				            CharHealth.setLayoutY(275);
+				            
+				               
+				            Endlvl.setLayoutX(275);
+				            Endlvl.setLayoutY(150);
+				            Endlvl.setFont(Font.font("Matura MT Script Capitals", 48));
+				            Endlvl.setTextFill(Color.web("#FF0000"));
+				               
+				            name.setVisible(true);
+				            name.setLayoutX(400);
+				            name.setLayoutY(305);
+				           
+				            
+				            
+				            if(MF == 1){
+				            	
+				            	 Hero1.setVisible(true);
+				                 Hero1.setLayoutX(350);
+				                 Hero1.setLayoutY(275);
+				 			            }
+				            if(MF == 2){
+				            	
+				            	 HeroF1.setVisible(true);
+				                 HeroF1.setLayoutX(350);
+				                 HeroF1.setLayoutY(275);		            	
+				            			}
+				        	Endlvl.setText("Level " + endlvl +" Complete");
+				        	charhealth = charhealth + charhealth1;
+				        	CharHealth.setText(charhealth + "/" + charhealth);
+				        	gold = gold + goldc;
+				        	GLabel.setText("" + gold);
+				        	score = score1 + score;
+				        	Score.setText("Score: " + score );
+				        	Key.setText("" + key );
+				        	scene.setCursor(Cursor.HAND);
+				        	potion1.setText("" + Potion);				        	
+				        	score = (gold * 25)+ (Potion * 25) + (key * 50) + (monsterkills * 100) + (charhealth * 100)   +  score; 
+				        	Score.setText("Score: " + score );
+				        	btnNextLvl.setVisible(true);
+				        	btnNextLvl.setDisable(false);
+											    	 
+				  } 
+				     
+			        });
+		 			
+		 	if(charhealth < 1){
+		 	ChestB.setVisible(false);		 			
+		 	}
+		 }
+		 	if (despawnB1 == 1){
+		 		Boss1.setVisible(false);
+		 	}
+	     } 
+	     
+	  });
+}
+if(currentroom != 24){
+	Boss1.setVisible(false);
+	
+}
+	
+   }
+}); 
+    
+
+}
+   private void Died(){
+	   
+	lblmonsterkills.setVisible(false);
+   	monsterdeath.setVisible(false);
+   	M1Label.setVisible(false);
+   	Monster1m.setVisible(false);
+   	btnstart.setVisible(true);
+   	tacombatlog.setVisible(true);
+   	MainMenu.setVisible(false);
+   	Main.setVisible(false);
+   	level1.setVisible(false);
+   	EndLevel.setVisible(true);
+   	MMenu.setVisible(false);
+   	FMenu.setVisible(false);
+   	Name.setDisable(true);	
+   	Name.setVisible(false);
+   	name.setVisible(false);	
+   	hero.setVisible(false);				       				     
+   	CharHealth.setVisible(true);
+   	Gold.setVisible(true);
+   	Key.setVisible(true);
+   	Keys.setVisible(true);
+   	GLabel.setVisible(true);
+   	Score.setVisible(true);
+   	Hero1.setVisible(false);
+   	HeroF1.setVisible(false);
+   	Chest1.setVisible(false);
+   	GoldSack.setVisible(false);
+   	GoldSack2.setVisible(false);
+   	GoldSack3.setVisible(false);
+   	GoldSack4.setVisible(false);
+   	GoldSack5.setVisible(false);
+   	GoldSack6.setVisible(false);
+   	GoldSack7.setVisible(false);
+   	GoldSack8.setVisible(false);
+   	BMenu.setVisible(false);
+   	
+   	
+   	
+   	
+   	Score.setLayoutX(350);
+    Score.setLayoutY(550);
+    Score.setFont(Font.font("Matura MT Script Capitals", 32));
+    Score.setTextFill(Color.web("#0E6B00"));
+   	
+    tacombatlog.setDisable(false);
+         
+    GLabel.setLayoutX(390);
+    GLabel.setLayoutY(400);
+   
+     
+    Gold.setLayoutX(350);
+    Gold.setLayoutY(400);
+        
+    Key.setLayoutX(390);
+    Key.setLayoutY(450);
+    
+      
+    Keys.setLayoutX(350);
+    Keys.setLayoutY(450);
+          
+    potion.setLayoutX(350);
+    potion.setLayoutY(500);
+    
+    potion1.setLayoutX(390);
+    potion1.setLayoutY(500);
+    
+       
+    CharHealth.setLayoutX(415);
+    CharHealth.setLayoutY(275);
+    
+       
+    Endlvl.setLayoutX(325);
+    Endlvl.setLayoutY(150);
+    Endlvl.setFont(Font.font("Matura MT Script Capitals", 48));
+    Endlvl.setTextFill(Color.web("#FF0000"));
+       
+    name.setVisible(true);
+    name.setLayoutX(400);
+    name.setLayoutY(305);
+    
+       
+       
+       if(MF == 1){
+       	
+       	 Hero1.setVisible(true);
+            Hero1.setLayoutX(350);
+            Hero1.setLayoutY(275);
+		            }
+       if(MF == 2){
+       	
+       	 HeroF1.setVisible(true);
+            HeroF1.setLayoutX(350);
+            HeroF1.setLayoutY(275);		            	
+       			}
+   	Endlvl.setText("You Died");
+   	charhealth = charhealth + charhealth1;
+   	CharHealth.setText(charhealth + "/" + charhealth);
+   	gold = gold + goldc;
+   	GLabel.setText("" + gold);
+   	score = score1 + score;
+   	Score.setText("Score: " + score );
+   	Key.setText("" + key );
+   	scene.setCursor(Cursor.HAND);
+   	potion1.setText("" + Potion);				        	
+   	score = (gold * 25)+ (Potion * 25) + (key * 50) + (monsterkills * 100) + (charhealth * 100)   +  score; 
+   	Score.setText("Score: " + score );
+   }
+}
